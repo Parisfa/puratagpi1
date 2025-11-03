@@ -41,7 +41,7 @@
         <label for="reka_bentuk">Reka Bentuk dan Teknologi (%):</label>
         <input type="number" id="reka_bentuk" min="0" max="100" required>
         
-        <label for="pendidikan_islam">Pendidikan Islam (%):</label>
+        <label for="pendidikan_islam">Pendidikan Islam/bahasa cina (%):</label>
         <input type="number" id="pendidikan_islam" min="0" max="100" required>
         
         <button type="button" onclick="kiraPurata()">Kira Purata</button>
@@ -98,11 +98,12 @@
             ringkasan += "</ul>";
             const purata = totalNilaiNumerik / 8;
             ringkasan += `<p><strong>🔢 Jumlah Keseluruhan Nilai Numerik (Total):</strong> ${totalNilaiNumerik}</p>`;
-            ringkasan += `<p><strong>➗ Purata Nilai Numerik (Total / 8):</strong> ${purata.toFixed(2)}</p>`;
+            ringkasan += `<p><strong>➗ Purata GPI:</strong> ${purata.toFixed(2)}</p>`;
             ringkasan += "<p>semoga berjaya dihadapan✨</p>";
             
             document.getElementById("hasil").innerHTML = ringkasan;
         }
     </script>
 </body>
+
 </html>
