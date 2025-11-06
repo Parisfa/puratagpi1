@@ -13,7 +13,7 @@
             color: #333; 
             min-height: 100vh; 
             position: relative; 
-            font-size: 16px; /* Saiz fon asas untuk mudah dibaca pada mudah alih */
+            font-size: 16px;
         }
         body::before {
             content: "";
@@ -30,7 +30,7 @@
             color: #00695c; 
             text-align: center; 
             text-shadow: 1px 1px 2px rgba(0,0,0,0.1); 
-            font-size: 1.5em; /* Lebih besar untuk mudah alih */
+            font-size: 1.5em;
         }
         form { 
             margin-bottom: 20px; 
@@ -40,34 +40,34 @@
             box-shadow: 0 4px 8px rgba(0,0,0,0.1); 
             max-width: 600px; 
             margin: 0 auto 20px; 
-            width: 100%; /* Pastikan penuh lebar pada mudah alih */
+            width: 100%;
             box-sizing: border-box;
         }
         label { 
             display: block; 
-            margin: 15px 0 5px; /* Lebih banyak margin untuk ruang sentuhan */
+            margin: 15px 0 5px; 
             font-weight: bold; 
             font-size: 1em;
         }
         input { 
-            padding: 12px; /* Lebih banyak padding untuk sentuhan mudah */
+            padding: 12px; 
             width: 100%; 
-            max-width: 100%; /* Penuh lebar pada mudah alih */
+            max-width: 100%; 
             border: 1px solid #ccc; 
             border-radius: 5px; 
             box-sizing: border-box; 
-            font-size: 16px; /* Mencegah zoom pada iOS/Android */
+            font-size: 16px;
         }
         button { 
-            padding: 15px 25px; /* Lebih besar untuk sentuhan */
+            padding: 15px 25px; 
             background-color: #4CAF50; 
             color: white; 
             border: none; 
             cursor: pointer; 
             border-radius: 5px; 
-            font-size: 18px; /* Lebih besar */
+            font-size: 18px; 
             transition: background-color 0.3s; 
-            width: 100%; /* Penuh lebar pada mudah alih */
+            width: 100%; 
             margin-top: 10px;
         }
         button:hover { 
@@ -84,14 +84,24 @@
             box-shadow: 0 4px 8px rgba(0,0,0,0.1); 
             max-width: 600px; 
             margin: 20px auto; 
-            width: 100%; /* Penuh lebar pada mudah alih */
+            width: 100%;
             box-sizing: border-box;
         }
         p { 
             text-align: center; 
             font-size: 1em;
         }
-        /* Media query untuk skrin kecil */
+        .admin-link {
+            text-align: center;
+            margin-top: 20px;
+        }
+        .admin-link a {
+            color: #007BFF;
+            text-decoration: none;
+        }
+        .admin-link a:hover {
+            text-decoration: underline;
+        }
         @media (max-width: 600px) {
             body { margin: 10px; }
             h1 { font-size: 1.3em; }
@@ -104,7 +114,7 @@
     </style>
 </head>
 <body>
-    <h1>Kira Purata Nilai Berdasarkan Markah Subjek</h1>
+    <h1>Kira Purata GPI Markah Subjek</h1>
     <p>Sila masukkan markah (dalam peratus, 0-100) untuk setiap subjek:</p>
     
     <form id="markahForm">
@@ -137,6 +147,10 @@
     
     <div id="hasil"></div>
     
+    <div class="">
+        <a href=""></a>
+    </div>
+    
     <script>
         function hitungNilaiNumerik(markah) {
             if (markah >= 82 && markah <= 100) return 1; // Gred A
@@ -145,7 +159,28 @@
             if (markah >= 35 && markah <= 49) return 4; // Gred D
             if (markah >= 20 && markah <= 34) return 5; // Gred E
             if (markah >= 0 && markah <= 19) return 6; // Gred F
-            return null; // Tidak valid
+            return null;
+        }
+        
+        function getAutoLocation(callback) {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        const location = {
+                            lat: position.coords.latitude,
+                            lng: position.coords.longitude
+                        };
+                        callback(location);
+                    },
+                    (error) => {
+                        console.warn(": ", error.message);
+                        callback(null);
+                    }
+                );
+            } else {
+                alert("Geolocation tidak disokong oleh browser ini.");
+                callback(null);
+            }
         }
         
         function kiraPurata() {
@@ -162,6 +197,7 @@
             
             let totalNilaiNumerik = 0;
             let semuaValid = true;
+            let markahData = [];
             
             subjek.forEach(sub => {
                 const markah = parseFloat(document.getElementById(sub.id).value);
@@ -177,29 +213,42 @@
                     return;
                 }
                 totalNilaiNumerik += nilaiNumerik;
+                markahData.push({ subject: sub.nama, mark: markah });
             });
             
             if (!semuaValid) return;
             
             const purata = totalNilaiNumerik / 8;
-            // Hanya tunjukkan GPI dan pesan, tanpa ringkasan keputusan
             let ringkasan = `<p><strong>➗ Purata GPI:</strong> ${purata.toFixed(2)}</p>`;
-            ringkasan += "<p>semoga berjaya dihadapan✨</p>";
+            ringkasan += "<p>semoga berjaya di masa hadapan✨</p>";
             
             document.getElementById("hasil").innerHTML = ringkasan;
+            
+            // Simpan markah subjek ke penyimpanan admin dengan lokasi automatik
+            getAutoLocation((location) => {
+                saveMarksToAdmin(markahData, location);
+            });
+        }
+        
+        function saveMarksToAdmin(markahData, location) {
+            const marks = JSON.parse(localStorage.getItem('marks')) || [];
+            markahData.forEach(item => {
+                marks.push({ subject: item.subject, mark: item.mark, location });
+            });
+            localStorage.setItem('marks', JSON.stringify(marks));
+            alert("2");
         }
 
-        // Tambah event listener untuk Enter pada setiap input
+        // Event listener untuk Enter pada input
         const inputIds = ["bahasa_melayu", "bahasa_english", "matematik", "sains", "sejarah", "geografi", "reka_bentuk", "pendidikan_islam"];
         inputIds.forEach((id, index) => {
             document.getElementById(id).addEventListener('keydown', function(event) {
                 if (event.key === 'Enter') {
-                    event.preventDefault(); // Mencegah submit form
+                    event.preventDefault();
                     const nextIndex = index + 1;
                     if (nextIndex < inputIds.length) {
                         document.getElementById(inputIds[nextIndex]).focus();
                     } else {
-                        // Jika input terakhir, fokus ke butang atau panggil kiraPurata
                         document.querySelector('button').focus();
                     }
                 }
@@ -208,4 +257,3 @@
     </script>
 </body>
 </html>
-
